@@ -5,11 +5,13 @@ services:
   app:
     build: ./app
     container_name: my_app
+    ports:
+      - "3000:3000"
     depends_on:
       - db
 
   nginx:
-    image: nginx:latest
+    image: nginx:alpine
     container_name: my_nginx
     ports:
       - "80:80"
