@@ -1,4 +1,4 @@
-# Grafana monitoring config 
+# Grafana config 
 apiVersion: 1
 datasources:
   - name: Prometheus
