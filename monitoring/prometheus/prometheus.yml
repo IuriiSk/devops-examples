@@ -1,4 +1,4 @@
-# Prometeus example config
+# Prometeus config
 global:
   scrape_interval: 15s
 scrape_configs:
