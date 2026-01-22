@@ -1,4 +1,4 @@
-# example file loki config
+# example loki config
 auth_enabled: false
 server:
   http_listen_port: 3100
