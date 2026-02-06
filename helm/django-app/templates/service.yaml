@@ -1,4 +1,4 @@
-# example config service
+# example config service file
 apiVersion: v1
 kind: Service
 metadata:
