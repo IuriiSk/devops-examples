@@ -2,7 +2,7 @@ FROM python:3.11
 
 WORKDIR /app
 
-# зустановление ависимости
+# установление ависимости
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
