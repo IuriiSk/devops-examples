@@ -1,3 +1,4 @@
+# scrips example
 #!/bin/bash
 PROJECT_ID="my-gcp-project"
 CLUSTER_NAME="prod-cluster"

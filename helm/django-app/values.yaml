@@ -1,4 +1,4 @@
-# Helm example
+# Helm example file Values
 # Global settings
 replicaCount: 2
 
