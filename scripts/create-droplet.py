@@ -1,3 +1,4 @@
+# scrips example
 import os
 import digitalocean
 

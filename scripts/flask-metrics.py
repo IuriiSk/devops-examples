@@ -1,3 +1,4 @@
+# scrips example
 from flask import Flask
 from prometheus_flask_exporter import PrometheusMetrics
 import redis

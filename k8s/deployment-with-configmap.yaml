@@ -1,3 +1,4 @@
+#k8s example
 apiVersion: v1
 kind: ConfigMap
 metadata:

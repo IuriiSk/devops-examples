@@ -1,3 +1,4 @@
+# scrips example
 #!/bin/bash
 export AWS_ACCESS_KEY_ID=$DO_SPACES_KEY
 export AWS_SECRET_ACCESS_KEY=$DO_SPACES_SECRET
