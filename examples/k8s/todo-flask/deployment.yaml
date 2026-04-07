@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-flask
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-flask
+  template:
+    metadata:
+      labels:
+        app: todo-flask
+    spec:
+      containers:
+        - name: todo-flask
+          image: your-dockerhub/todo-flask:latest
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: postgres
