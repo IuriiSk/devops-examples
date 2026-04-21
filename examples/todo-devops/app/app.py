@@ -28,6 +28,22 @@ def get_db_connection():
     raise Exception("❌ Could not connect to DB")
 
 
+def wait_for_db():
+    print("⏳ Waiting DB...")
+
+    for i in range(20):
+        try:
+            conn = get_db_connection()
+            conn.close()
+            print("✅ DB is ready")
+            return
+        except:
+            print(f"⏳ retry {i+1}/20")
+            time.sleep(2)
+
+    raise Exception("❌ DB not ready")
+
+
 def init_db():
     conn = get_db_connection()
     cur = conn.cursor()
@@ -47,25 +63,14 @@ def init_db():
     print("✅ DB initialized")
 
 
-# ✅ FIX: wait for DB before init (важно для CI)
-def wait_for_db():
-    print("⏳ Waiting DB...")
-
-    for i in range(20):
-        try:
-            conn = get_db_connection()
-            conn.close()
-            print("✅ DB is ready")
-            return
-        except:
-            print(f"⏳ retry {i+1}/20")
-            time.sleep(2)
-
-    raise Exception("❌ DB not ready")
+# ✅ безопасный startup (НЕ ломает CI)
+def safe_init():
+    wait_for_db()
+    init_db()
 
 
-wait_for_db()
-init_db()
+if os.environ.get("RUN_INIT", "true") == "true":
+    safe_init()
 
 
 @app.route('/')

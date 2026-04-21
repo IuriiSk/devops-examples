@@ -17,26 +17,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
+      - name: Start services (Docker Compose)
         run: |
-          docker build -t todo-devops ./examples/todo-devops
+          docker compose -f ./examples/todo-devops/docker-compose.yml up -d --build
 
-      - name: Run container
+      - name: Wait for health
         run: |
-          docker run -d -p 5000:5000 --name todo-test todo-devops
-
-      - name: Wait for service (stable health check)
-        run: |
-          for i in {1..10}; do
-            curl -f http://localhost:5000/health && exit 0
+          for i in {1..20}; do
+            curl -f http://localhost:5010/health && exit 0
             echo "waiting..."
             sleep 3
           done
+
           echo "Service failed"
-          docker logs todo-test
+          docker compose logs
           exit 1
 
       - name: Cleanup
         if: always()
         run: |
-          docker rm -f todo-test || true
+          docker compose -f ./examples/todo-devops/docker-compose.yml down || true
