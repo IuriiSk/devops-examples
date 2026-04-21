@@ -5,7 +5,6 @@ import time
 
 app = Flask(__name__)
 
-# ✅ ВАЖНО: имя сервиса в docker-compose = db
 DB_HOST = os.environ.get("POSTGRES_HOST", "db")
 DB_NAME = os.environ.get("POSTGRES_DB", "postgres")
 DB_USER = os.environ.get("POSTGRES_USER", "postgres")
@@ -13,7 +12,6 @@ DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "12345")
 
 
 def get_db_connection():
-    """Подключение к БД с retry"""
     for i in range(15):
         try:
             conn = psycopg2.connect(
@@ -31,7 +29,6 @@ def get_db_connection():
 
 
 def init_db():
-    """Создание таблицы"""
     conn = get_db_connection()
     cur = conn.cursor()
 
@@ -50,8 +47,24 @@ def init_db():
     print("✅ DB initialized")
 
 
-# ⚠️ теперь безопаснее
-print("⏳ Waiting DB before init...")
+# ✅ FIX: wait for DB before init (важно для CI)
+def wait_for_db():
+    print("⏳ Waiting DB...")
+
+    for i in range(20):
+        try:
+            conn = get_db_connection()
+            conn.close()
+            print("✅ DB is ready")
+            return
+        except:
+            print(f"⏳ retry {i+1}/20")
+            time.sleep(2)
+
+    raise Exception("❌ DB not ready")
+
+
+wait_for_db()
 init_db()
 
 
@@ -71,7 +84,10 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add():
-    title = request.form['title']
+    title = request.form.get('title')
+
+    if not title:
+        return "Title is empty", 400
 
     conn = get_db_connection()
     cur = conn.cursor()

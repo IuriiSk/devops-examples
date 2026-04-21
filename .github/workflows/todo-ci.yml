@@ -10,7 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # 👇 фикс предупреждения GitHub Actions про Node 20
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -18,18 +17,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
       - name: Build Docker image
         run: |
           docker build -t todo-devops ./examples/todo-devops
 
-      - name: Run container (smoke test)
+      - name: Run container
         run: |
           docker run -d -p 5000:5000 --name todo-test todo-devops
-          sleep 5
-          curl http://localhost:5000/health || exit 1
+
+      - name: Wait for service (stable health check)
+        run: |
+          for i in {1..10}; do
+            curl -f http://localhost:5000/health && exit 0
+            echo "waiting..."
+            sleep 3
+          done
+          echo "Service failed"
+          docker logs todo-test
+          exit 1
 
       - name: Cleanup
         if: always()
