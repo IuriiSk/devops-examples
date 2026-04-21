@@ -10,9 +10,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # 👇 фикс предупреждения GitHub Actions про Node 20
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
         run: |
@@ -23,3 +30,8 @@ jobs:
           docker run -d -p 5000:5000 --name todo-test todo-devops
           sleep 5
           curl http://localhost:5000/health || exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f todo-test || true

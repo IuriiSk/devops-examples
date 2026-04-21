@@ -1,42 +1,56 @@
 # DevOps Examples 🚀
 
-Практический DevOps-портфолио репозиторий с инфраструктурой, CI/CD подходами и контейнеризированными приложениями.
+Практический DevOps-портфолио репозиторий с реальными инфраструктурными проектами, контейнеризацией и CI/CD.
 
 ---
 
 ## 📌 О проекте
 
-Этот репозиторий содержит реальные DevOps-практики:
+Этот репозиторий демонстрирует практические DevOps-навыки:
 
-- контейнеризация приложений
-- Kubernetes манифесты
+- контейнеризация приложений (Docker)
+- multi-container архитектура
+- Kubernetes манифесты (GKE-ready)
 - Helm charts
 - мониторинг и логирование
 - автоматизация инфраструктуры
-- backend примеры (Node.js / Python)
+- CI/CD пайплайны (GitHub Actions)
+
+[Docker](chatgpt://generic-entity?number=0)  
+[Kubernetes](chatgpt://generic-entity?number=1)  
+[GitHub Actions](chatgpt://generic-entity?number=2)  
 
 ---
 
-## 📁 Структура
+## 📁 Структура проекта
 
 ### 📦 examples/
-Практические приложения и Docker-проекты:
+Практические backend и full-stack проекты:
 
 - **todo-devops**  
   Flask + PostgreSQL + Nginx + Docker Compose  
-  👉 полноценный multi-container стек
+  👉 полноценный DevOps стек:
+  - backend (Flask)
+  - database (PostgreSQL)
+  - reverse proxy (Nginx)
+  - persistent storage
+  - healthcheck endpoint
 
 - **todo-project (Node.js)**  
   Node.js + Express + Docker пример
 
 - **docker-site**  
-  frontend/backend + nginx + docker-compose
+  frontend + backend + nginx + docker-compose
 
 - **python-app**  
-  минимальный Flask backend
+  минимальный Flask API пример
 
 - **docker-compose-app**  
-  Python + PostgreSQL пример
+  Python + PostgreSQL приложение
+
+[Flask](chatgpt://generic-entity?number=3)  
+[PostgreSQL](chatgpt://generic-entity?number=4)  
+[Nginx](chatgpt://generic-entity?number=5)  
 
 ---
 
@@ -53,25 +67,42 @@ Kubernetes манифесты:
 Helm charts для:
 - Django приложений
 - Node.js сервисов
-- параметризованные deployment’ы
+- параметризованные Kubernetes деплои
 
 ---
 
 ### 📊 prometheus/
-Мониторинг и observability:
+Monitoring stack:
 - Prometheus
 - Grafana dashboards
 - Loki logging
-- алерты
+- alerting rules
 
 ---
 
 ### ⚙️ scripts/
-Infrastructure automation scripts:
-- создание Droplet (DigitalOcean)
-- бэкапы в DO Spaces
-- деплой GKE cluster
-- utility scripts
+Infrastructure automation:
+- создание cloud ресурсов (Droplet / GKE)
+- бэкапы в object storage
+- provisioning scripts
+- DevOps automation utilities
+
+---
+
+## ⚙️ CI/CD
+
+Проект включает GitHub Actions CI pipeline:
+
+### CI выполняет:
+- сборку Docker образа
+- запуск контейнера
+- smoke test (`/health` endpoint)
+
+Запускается автоматически:
+- при push в `main`
+- при pull request
+
+[GitHub Actions](chatgpt://generic-entity?number=6)  
 
 ---
 
@@ -81,7 +112,7 @@ Infrastructure automation scripts:
 - Docker / Docker Compose
 - Helm
 - Ansible
-- Jenkins CI/CD
+- GitHub Actions (CI/CD)
 - Prometheus / Grafana / Loki
 - PostgreSQL / MySQL / MongoDB / Redis
 - Python / Node.js / Next.js
@@ -94,16 +125,16 @@ Infrastructure automation scripts:
 Этот репозиторий создан для практики DevOps навыков:
 
 - построение production-like инфраструктуры
-- работа с контейнерами и оркестрацией
+- контейнеризация и оркестрация приложений
 - CI/CD pipelines
-- observability (monitoring + logging)
-- infrastructure as code
+- infrastructure as code (IaC)
+- monitoring & logging (observability)
 
 ---
 
 ## 🚀 Запуск примеров
 
-Пример (docker проекты):
+Пример запуска Docker проектов:
 
 ```bash
 docker compose up --build
