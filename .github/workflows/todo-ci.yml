@@ -1,0 +1,25 @@
+name: Todo DevOps CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t todo-devops ./examples/todo-devops
+
+      - name: Run container (smoke test)
+        run: |
+          docker run -d -p 5000:5000 --name todo-test todo-devops
+          sleep 5
+          curl http://localhost:5000/health || exit 1
