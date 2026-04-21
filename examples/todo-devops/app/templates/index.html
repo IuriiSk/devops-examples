@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DevOps Todo</title>
+</head>
+
+<body>
+
+<h1>Todo List</h1>
+
+<!-- форма добавления -->
+<form action="/add" method="POST">
+
+    <!-- поле ввода -->
+    <input type="text" name="task" placeholder="New task">
+
+    <!-- кнопка -->
+    <button>Add</button>
+
+</form>
+
+<hr>
+
+<h2>Tasks:</h2>
+
+<ul>
+
+{% for todo in todos %}
+
+<li>
+    {{ todo[1] }}
+
+    <!-- ссылка удаления -->
+    <a href="/delete/{{ todo[0] }}">Delete</a>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</body>
+</html>
