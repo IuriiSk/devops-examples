@@ -1,0 +1,61 @@
+# Global settings
+replicaCount: 2
+
+image:
+  repository: gcr.io/your-project/django-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+# Django specific
+django:
+  secretKey: "your-secret-key-change-in-prod"
+  debug: false
+  allowedHosts:
+    - "example.com"
+    - "www.example.com"
+
+# Database (MySQL)
+mysql:
+  enabled: true
+  image: mysql:8.0
+  database: django_db
+  user: django_user
+  password: "change-me"
+  rootPassword: "change-me-root"
+  persistence:
+    enabled: true
+    size: 10Gi
+
+# Redis
+redis:
+  enabled: true
+  image: redis:7-alpine
+  port: 6379
+
+# Kubernetes resources
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "250m"
+  limits:
+    memory: "512Mi"
+    cpu: "500m"
+
+# Service
+service:
+  type: ClusterIP
+  port: 8000
+
+# Ingress
+ingress:
+  enabled: true
+  className: nginx
+  host: django.example.com
+  tls:
+    enabled: true
+    secretName: django-tls
+
+# Environment variables
+extraEnv:
+  - name: DJANGO_SETTINGS_MODULE
+    value: "myapp.settings.production"

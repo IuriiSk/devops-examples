@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REGISTRY = 'gcr.io/myproject'
+        K8S_NAMESPACE = 'production'
+    }
+    stages {
+        stage('Checkout') {
+            steps { git 'https://github.com/your/nextjs-app.git' }
+        }
+        stage('Build Next.js') {
+            steps {
+                sh 'npm ci'
+                sh 'npm run build'
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                script {
+                    docker.build("${DOCKER_REGISTRY}/nextjs-app:${BUILD_NUMBER}")
+                    docker.push("${DOCKER_REGISTRY}/nextjs-app:${BUILD_NUMBER}")
+                }
+            }
+        }
+        stage('Deploy to GKE') {
+            steps {
+                sh """
+                    helm upgrade --install nextjs-app ./helm/nextjs \
+                        --set image.tag=${BUILD_NUMBER} \
+                        --namespace ${K8S_NAMESPACE}
+                """
+            }
+        }
+    }
+    post {
+        failure {
+            slackSend(color: 'danger', message: "Deployment failed: ${env.JOB_NAME} - ${env.BUILD_NUMBER}")
+        }
+    }
+}

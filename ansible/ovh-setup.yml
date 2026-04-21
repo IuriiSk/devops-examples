@@ -1,0 +1,41 @@
+---
+- name: Bootstrap legacy OVH server
+  hosts: ovh_servers
+  become: yes
+  vars:
+    docker_version: "20.10"
+    lxc_containers:
+      - legacy-api
+      - old-worker
+
+  tasks:
+    - name: Install Docker and dependencies
+      apt:
+        name:
+          - docker.io
+          - docker-compose
+          - python3-pip
+        state: present
+
+    - name: Start Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create LXC containers (legacy)
+      command: "lxc-create -n {{ item }} -t download -- --dist ubuntu --release focal --arch amd64"
+      loop: "{{ lxc_containers }}"
+      when: ansible_os_family == "Debian"
+
+    - name: Deploy docker-compose for legacy app
+      copy:
+        dest: /opt/legacy-app/docker-compose.yml
+        content: |
+          version: '3'
+          services:
+            app:
+              image: legacy/app:1.2
+              ports:
+                - "8080:80"
+              restart: always
