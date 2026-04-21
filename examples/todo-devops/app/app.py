@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect
 import psycopg2
 import os
-import time
 
 app = Flask(__name__)
 
@@ -12,36 +11,13 @@ DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "12345")
 
 
 def get_db_connection():
-    for i in range(15):
-        try:
-            conn = psycopg2.connect(
-                host=DB_HOST,
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASSWORD
-            )
-            return conn
-        except psycopg2.OperationalError:
-            print(f"⏳ DB not ready... retry {i+1}/15")
-            time.sleep(2)
-
-    raise Exception("❌ Could not connect to DB")
-
-
-def wait_for_db():
-    print("⏳ Waiting DB...")
-
-    for i in range(20):
-        try:
-            conn = get_db_connection()
-            conn.close()
-            print("✅ DB is ready")
-            return
-        except:
-            print(f"⏳ retry {i+1}/20")
-            time.sleep(2)
-
-    raise Exception("❌ DB not ready")
+    conn = psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD
+    )
+    return conn
 
 
 def init_db():
@@ -61,16 +37,6 @@ def init_db():
     conn.close()
 
     print("✅ DB initialized")
-
-
-# ✅ безопасный startup (НЕ ломает CI)
-def safe_init():
-    wait_for_db()
-    init_db()
-
-
-if os.environ.get("RUN_INIT", "true") == "true":
-    safe_init()
 
 
 @app.route('/')
@@ -125,6 +91,13 @@ def health():
     return {"status": "ok"}
 
 
+@app.route('/init')
+def manual_init():
+    init_db()
+    return {"status": "initialized"}
+
+
 if __name__ == '__main__':
     print("🚀 Starting Flask app...")
+    init_db()   # безопасно только локально
     app.run(host='0.0.0.0', port=5000)

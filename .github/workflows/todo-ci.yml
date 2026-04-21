@@ -10,18 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Start services (Docker Compose)
+      - name: Start services
         run: |
           docker compose -f ./examples/todo-devops/docker-compose.yml up -d --build
 
-      - name: Wait for health
+      - name: Wait for service
         run: |
           for i in {1..20}; do
             curl -f http://localhost:5010/health && exit 0
@@ -30,7 +27,7 @@ jobs:
           done
 
           echo "Service failed"
-          docker compose logs
+          docker compose -f ./examples/todo-devops/docker-compose.yml logs
           exit 1
 
       - name: Cleanup
