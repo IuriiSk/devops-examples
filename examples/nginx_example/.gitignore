@@ -1,0 +1,31 @@
+# macOS
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Temp files
+*.tmp
+*.swp
+*.bak
+
+# Editor
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+
+# Nginx runtime files
+*.pid
+*.sock
+client_body_temp/
+proxy_temp/
+fastcgi_temp/
+uwsgi_temp/
+scgi_temp/
+
+# SSL private keys (если будут)
+*.key
+*.pem
