@@ -1,3 +1,4 @@
+# Helm example
 # Global settings
 replicaCount: 2
 
