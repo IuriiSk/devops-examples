@@ -4,11 +4,11 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - "examples/docker-db-test/**"
+      - "examples/docker-site/**"
   pull_request:
     branches: [ "main" ]
     paths:
-      - "examples/docker-db-test/**"
+      - "examples/docker-site/**"
 
 jobs:
   build:
@@ -20,12 +20,12 @@ jobs:
 
       - name: Start services
         run: |
-          cd examples/docker-db-test
+          cd examples/docker-site
           docker compose up -d --build
 
       - name: Wait for app
         run: |
-          cd examples/docker-db-test
+          cd examples/docker-site
 
           for i in {1..15}; do
             curl -s http://localhost:8080 && exit 0
