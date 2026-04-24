@@ -104,6 +104,25 @@ jobs:
           cd examples/todo-devops
           docker compose down -v || true
 
+  task-processor:
+    runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        service: [task-processor, task-processor-v1]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Debug matrix
+        run: echo "Building ${{ matrix.service }}"
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t ${{ matrix.service }}:latest \
+            -f ./projects/${{ matrix.service }}/api/Dockerfile \
+            ./projects/${{ matrix.service }}/api
 # =========================
 # task
