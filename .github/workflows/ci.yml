@@ -3,49 +3,47 @@ name: Full Monorepo CI
 on:
   push:
     branches: ["main"]
+    paths:
+      - "examples/docker-site/**"
+      - "examples/todo-js/**"
+      - "examples/todo-devops/**"
+      - "projects/**"
+      - ".github/workflows/**"
+
   pull_request:
+    paths:
+      - "examples/docker-site/**"
+      - "examples/todo-js/**"
+      - "examples/todo-devops/**"
+      - "projects/**"
 
 jobs:
 
 # =========================
-# docker-site
+# docker-site (compose)
 # =========================
   docker-site:
     runs-on: ubuntu-latest
 
-    if: github.event_name == 'push' || github.event_name == 'pull_request'
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check changed files
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            changed:
-              - 'examples/docker-site/**'
-
-      - name: Skip if not changed
-        if: steps.filter.outputs.changed != 'true'
-        run: echo "No changes in docker-site" && exit 0
-
       - name: Start services
-        if: steps.filter.outputs.changed == 'true'
         run: |
           cd examples/docker-site
           docker compose up -d --build
 
-      - name: Test app
-        if: steps.filter.outputs.changed == 'true'
+      - name: Wait for app
         run: |
           cd examples/docker-site
 
           for i in {1..15}; do
             curl -s http://localhost:8080 && exit 0
+            echo "Waiting..."
             sleep 3
           done
 
+          echo "App failed"
           docker compose logs
           exit 1
 
@@ -54,3 +52,98 @@ jobs:
         run: |
           cd examples/docker-site
           docker compose down -v || true
+
+
+# =========================
+# todo-js (Node + Docker)
+# =========================
+  todo-js:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: examples/todo-js/app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run app
+        run: node server.js &
+
+      - name: Build Docker image
+        run: |
+          docker build -t todo-js-app ./
+
+
+# =========================
+# todo-devops (compose + healthcheck)
+# =========================
+  todo-devops:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start services
+        run: |
+          cd examples/todo-devops
+          docker compose up -d --build
+
+      - name: Wait for service
+        run: |
+          cd examples/todo-devops
+
+          for i in {1..20}; do
+            curl -f http://localhost:5010/health && exit 0
+            echo "waiting..."
+            sleep 3
+          done
+
+          echo "Service failed"
+          docker compose logs
+          exit 1
+
+      - name: Cleanup
+        if: always()
+        run: |
+          cd examples/todo-devops
+          docker compose down -v || true
+
+
+# =========================
+# task-processor (v1 + v2)
+# =========================
+  task-processor:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          - task-processor
+          - task-processor-v1
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ matrix.service }}:latest ./projects/${{ matrix.service }}
+
+      - name: Run container (smoke test)
+        run: |
+          docker run -d -p 3001:3001 --name app ${{ matrix.service }}:latest
+          sleep 5
+          curl --fail http://localhost:3001 || exit 1
+          docker logs app
+          docker stop app
