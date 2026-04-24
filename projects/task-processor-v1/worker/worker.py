@@ -1,46 +1,44 @@
 import redis
 import psycopg2
-import os
 import time
 
+# ---------- REDIS ----------
 r = redis.Redis(
-    host=os.getenv("REDIS_HOST", "redis"),
+    host="redis",
     port=6379,
-    db=int(os.getenv("REDIS_DB", 0)),  # 🔥 FIX
     decode_responses=True
 )
 
+# ---------- DB ----------
 def get_db():
-    while True:
-        try:
-            return psycopg2.connect(
-                host=os.getenv("POSTGRES_HOST", "db"),
-                database=os.getenv("POSTGRES_DB", "tasks"),
-                user=os.getenv("POSTGRES_USER", "postgres"),
-                password=os.getenv("POSTGRES_PASSWORD", "postgres")
-            )
-        except:
-            print("Waiting DB...")
-            time.sleep(2)
-
-print("Worker started")
-
-while True:
-    _, task_id = r.brpop("tasks")
-
-    print("Processing:", task_id)
-    time.sleep(2)
-
-    conn = get_db()
-    cur = conn.cursor()
-
-    cur.execute(
-        "UPDATE tasks SET status='done' WHERE id=%s",
-        (task_id,)
+    return psycopg2.connect(
+        host="db",
+        database="tasks",
+        user="postgres",
+        password="postgres"
     )
 
-    conn.commit()
-    cur.close()
-    conn.close()
+print("🚀 Worker started")
 
-    print("Done:", task_id)
+while True:
+    task = r.brpop("tasks")  # блокирующее ожидание
+
+    if task:
+        task_id = task[1]
+        print(f"⚙️ Processing task {task_id}")
+
+        time.sleep(2)  # имитация работы
+
+        conn = get_db()
+        cur = conn.cursor()
+
+        cur.execute(
+            "UPDATE tasks SET status='done' WHERE id=%s",
+            (task_id,)
+        )
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        print(f"✅ Done task {task_id}")
