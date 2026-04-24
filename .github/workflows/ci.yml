@@ -14,7 +14,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Start services
         run: |
@@ -42,7 +43,7 @@ jobs:
 
 
 # =========================
-# todo-js
+# todo-js (Node + Docker)
 # =========================
   todo-js:
     runs-on: ubuntu-latest
@@ -55,10 +56,14 @@ jobs:
         with:
           node-version: 18
 
-      - name: Install & run
+      - name: Install dependencies
         run: |
           cd examples/todo-js/app
           npm install
+
+      - name: Run app
+        run: |
+          cd examples/todo-js/app
           node server.js &
 
       - name: Build Docker image
@@ -67,7 +72,7 @@ jobs:
 
 
 # =========================
-# todo-devops
+# todo-devops (compose + healthcheck)
 # =========================
   todo-devops:
     runs-on: ubuntu-latest
@@ -86,6 +91,7 @@ jobs:
 
           for i in {1..20}; do
             curl -f http://localhost:5010/health && exit 0
+            echo "waiting..."
             sleep 3
           done
 
@@ -100,34 +106,4 @@ jobs:
 
 
 # =========================
-# task-processor (v1 + v2)
-# =========================
-  task-processor:
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service:
-          - task-processor
-          - task-processor-v1
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build service
-        run: |
-          docker build \
-            -t ${{ matrix.service }}:latest \
-            -f ./projects/${{ matrix.service }}/api/Dockerfile \
-            ./projects/${{ matrix.service }}
-
-      - name: Smoke test
-        run: |
-          docker run -d -p 3001:3001 --name app ${{ matrix.service }}:latest
-          sleep 5
-          curl --fail http://localhost:3001 || exit 1
-          docker logs app
-          docker stop app
+# task

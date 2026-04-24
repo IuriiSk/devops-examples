@@ -1,10 +1,13 @@
-FROM python:3.11-slim
+FROM python:3.11
 
 WORKDIR /app
 
+# зависимости
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY worker.py .
+# весь код сервиса
+COPY . .
 
-CMD ["python", "worker.py"]
+# запуск
+CMD ["python", "app.py"]
