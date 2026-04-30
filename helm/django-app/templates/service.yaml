@@ -1,4 +1,4 @@
-# example file
+# example file service
 apiVersion: v1
 kind: Service
 metadata:
