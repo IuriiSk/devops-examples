@@ -1,4 +1,4 @@
-# Helm example Chart file
+# Helm Chart example
 apiVersion: v2
 name: django-app
 description: Helm chart for Django application with MySQL and Redis
