@@ -138,3 +138,16 @@ Infrastructure automation:
 
 ```bash
 docker compose up --build
+
+# Multi-Layer Nginx Reverse Proxy Chain
+
+DevOps тестовый проект, демонстрирующий:
+
+- многоуровневую архитектуру reverse proxy (Nginx)
+- передачу и формирование цепочки `X-Forwarded-For`
+- защиту от подделки заголовков (spoofing)
+- Docker Compose оркестрацию сервисов
+- статическую Docker-сеть с фиксированными IP
+- backend на Flask + Gunicorn
+- healthcheck-и и зависимости сервисов
+- production-style hardening контейнеров
