@@ -1,0 +1,11 @@
+.DS_Store
+
+src/vendor
+src/node_modules
+
+src/.env
+
+mysql_data
+
+.idea
+.vscode

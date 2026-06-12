@@ -1,0 +1,26 @@
+#!/bin/sh
+set -e
+
+echo "Waiting for MySQL..."
+until mysqladmin ping -h mysql --silent
+do
+  sleep 2
+done
+
+# Если папка vendor отсутствует (например, при первом холодном старте), ставим зависимости
+if [ ! -d "vendor" ]; then
+  echo "Installing composer dependencies..."
+  composer install --no-interaction --optimize-autoloader --no-dev
+fi
+
+# Проверяем, сгенерирован ли уже ключ в .env, чтобы не сбрасывать сессии при перезапуске контейнера
+if ! grep -q "^APP_KEY=base64" .env || [ -z "$(grep "^APP_KEY=" .env | cut -d= -f2)" ]; then
+  echo "Generating APP_KEY..."
+  php artisan key:generate --force
+fi
+
+echo "Running migrations..."
+php artisan migrate --force
+
+echo "Starting PHP-FPM..."
+exec php-fpm

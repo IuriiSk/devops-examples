@@ -1,0 +1,14 @@
+---
+app_dir: /opt/laravel-app
+
+mysql_database: laravel
+mysql_user: db
+mysql_password: dbpassword
+mysql_root_password: rootpassword
+
+nginx_port: 80
+
+php_version: "8.3"
+nginx_version: "1.27-alpine"
+mysql_version: "8.0.36"
+phpmyadmin_version: "5.2.1"
