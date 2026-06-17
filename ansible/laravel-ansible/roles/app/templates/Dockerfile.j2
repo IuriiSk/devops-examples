@@ -8,12 +8,16 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql zip \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Install Composer v2 globally - установка Composer v2
+COPY --from=mirror.gcr.io/composer:2.8 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www/html
 
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
+
+EXPOSE 9000
 
 ENTRYPOINT ["/entrypoint.sh"]

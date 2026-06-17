@@ -1,19 +1,22 @@
 #!/bin/sh
 set -e
 
-echo "Waiting for MySQL..."
-until mysqladmin ping -h mysql --silent
+echo "Waiting for MySQL connect..."
+# Заменили --ssl-mode=DISABLED на --ssl=0, который поймет и MariaDB, и MySQL клиент
+until mysqladmin ping -h "$DB_HOST" -u root -p"$MYSQL_ROOT_PASSWORD" --ssl=0 --silent
 do
   sleep 2
 done
 
-# Если папка vendor отсутствует (например, при первом холодном старте), ставим зависимости
+echo "MySQL is up! Checking if vendor folder exists..."
+
+# Если папка vendor отсутствует (при первом старте) ставим зависимости
 if [ ! -d "vendor" ]; then
   echo "Installing composer dependencies..."
   composer install --no-interaction --optimize-autoloader --no-dev
 fi
 
-# Проверяем, сгенерирован ли уже ключ в .env, чтобы не сбрасывать сессии при перезапуске контейнера
+# Проверяем, сгенерирован ли уже ключ в .env
 if ! grep -q "^APP_KEY=base64" .env || [ -z "$(grep "^APP_KEY=" .env | cut -d= -f2)" ]; then
   echo "Generating APP_KEY..."
   php artisan key:generate --force

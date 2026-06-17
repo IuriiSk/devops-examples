@@ -2,23 +2,39 @@ server {
     listen 80;
     root /var/www/html/public;
     index index.php index.html;
+    
+    # Внутренний DNS-сервер Docker для динамического разрешения имен
+    resolver 127.0.0.11 valid=30s;
+    
+    # Max size client object
+    client_max_body_size 10M;
 
     location / {
         try_files $uri $uri/ /index.php?$query_string;
+        gzip_static on;
     }
 
     location ~ \.php$ {
-        fastcgi_pass app:9000;
+        # Скрываем хост в переменную, чтобы Nginx не падал при старте, если app еще не готов
+        set $upstream_app app;
+        fastcgi_pass $upstream_app:9000;
+        
         include fastcgi_params;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 
     location /pma/ {
-        proxy_pass http://phpmyadmin:80/;
+        # Скрываем хост в переменную, чтобы Nginx не проверял существование phpmyadmin при старте
+        set $upstream_pma phpmyadmin;
+        
+        proxy_pass http://$upstream_pma:80/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded-for;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+    
+    # Block dangerous requests
+    location ~ /\.  { deny all; return 404; }
 }

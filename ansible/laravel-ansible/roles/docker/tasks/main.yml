@@ -1,6 +1,6 @@
 ---
 - name: Install dependencies
-  apt:
+  ansible.builtin.apt:
     name:
       - curl
       - ca-certificates
@@ -10,38 +10,38 @@
     update_cache: yes
 
 - name: Create keyring directory
-  file:
+  ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
     mode: '0755'
 
 - name: Add Docker GPG key
-  shell: |
+  ansible.builtin.shell: |
+    set -o pipefail
     curl -fsSL https://download.docker.com/linux/debian/gpg \
       | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   args:
+    executable: /bin/bash
     creates: /etc/apt/keyrings/docker.gpg
 
 - name: Add Docker repository
-  copy:
-    dest: /etc/apt/sources.list.d/docker.list
-    content: |
-      deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian bullseye stable
-  notify: update apt
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+    state: present
+    update_cache: yes  # <--- Вот теперь этот параметр находится на своем месте внутри модуля apt_repository
 
 - name: Install Docker
-  apt:
+  ansible.builtin.apt:
     name: "{{ docker_packages }}"
     state: present
-    update_cache: yes
 
 - name: Start Docker
-  service:
+  ansible.builtin.service:
     name: docker
     enabled: true
     state: started
 
 - name: Install python docker sdk
-  apt:
+  ansible.builtin.apt:
     name: python3-docker
     state: present
